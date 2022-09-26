@@ -1,0 +1,207 @@
+﻿@{ ViewData["Title"] = "Home Page"; }
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        body {
+            background: snow;
+        }
+
+        .card {
+            background-color: #dbf1d7;
+            width: 400px;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 3px 10px rgb(0 0 0);
+        }
+
+        .card2 {
+            /* transform: translate(-50%,-50%);
+            box-shadow: 0 3px 10px rgb(0 0 0);
+            background-color: #dbf1d7; */
+            width: 110px;
+            padding: 0px;
+            position: absolute;
+            top: 65%;
+            left: 45%;
+        }
+
+        #asd {
+            font-size: 5em;
+            line-height: 1.3em;
+            text-align: center;
+            border-radius: 50%;
+        }
+
+        /*#result {
+            font-size: 5em;
+            line-height: 1.3em;
+            text-align: center;
+        }*/
+
+    </style>
+
+    <script>window.addEventListener('load', () => {
+  function TestSpeedNow() {
+     SpeedTest(
+         [
+              '/assets/20MB.zip',
+             // '/assets/movie.mp4',
+             // '/assets/10MB.zip',
+             //'/assets/USA_latest.pdf',
+             //'/assets/5MB.zip',
+             ]);
+
+  }
+
+  document.getElementById('asd').addEventListener('click', ()=>{
+      TestSpeedNow();
+      console.log('123');
+  });
+
+var totalLatency = [];
+
+    function SpeedTest(file_urls){
+
+        if(file_urls != null && file_urls.length > 0){
+            document.querySelector('.speed').innerHTML = '0';
+            document.querySelector('.time').innerHTML = '0';
+            document.querySelector('.latency').innerHTML = '0';
+            document.querySelector('.files').innerHTML = file_urls.length;
+            var count = 0;
+            var tTime = 0.00;
+            var tSize = 0.00;
+            for(var i = 0; i < file_urls.length;i++)
+            {
+
+                const start = Date.now();
+                const url = file_urls[i];
+                const xhr = new XMLHttpRequest();
+
+                let end;
+                let size;
+                let time;
+                let latency1;
+
+                xhr.addEventListener("progress", updateProgress);
+                xhr.addEventListener("load", transferComplete);
+                xhr.addEventListener("error", transferFailed);
+                xhr.addEventListener("abort", transferCanceled);
+
+                xhr.open('GET', url+"?GUID=" + (new Date().getTime()+Math.floor(Math.random() * 50)));
+                xhr.setRequestHeader("Cache-Control", "max-age=0");
+
+                xhr.send();
+
+
+                function updateProgress(oEvent) {
+                  if (oEvent.lengthComputable) {
+                    if (!size) {
+
+                      latency1 = Date.now();
+
+                      //totalLatency = latency1 - start;
+
+                      totalLatency.push(latency1 - start);
+
+
+                      document.querySelector('.latency').innerHTML = `${Number.parseFloat(totalLatency).toFixed(2)} ms`;
+
+                      size = oEvent.total;
+                      document.querySelector('.size').innerHTML = `${Number.parseFloat(size / 1024 / 1024).toFixed(2)} MB`;
+                    }
+
+                    var percentComplete = oEvent.loaded / oEvent.total * 100;
+                    document.querySelector('.progress').innerHTML = `${parseInt(percentComplete, 10)}%`;
+                  }
+                }
+
+                function transferComplete(evt) {
+                  console.log('The transfer is complete.');
+                  end = Date.now();
+
+                  time = (end - start)/ 1000;
+                  stime = (end - start);
+
+
+
+                  //document.querySelector('.time').innerHTML = `${parseInt(time, 10)}`;//seconds
+                  //document.querySelector('.speed').innerHTML = `${Number.parseFloat((size / time / 1024))}`; // kB/s
+
+                  console.log(`${time} ${Number.parseFloat(size / time / 1024)}`);
+                  tTime += stime;
+                  tSize += Number.parseFloat((size / time / 1024));
+
+                  count++;
+                  if(count == i){
+                      console.log("done: "+tTime+"--"+tSize);
+                       document.querySelector('.time').innerHTML = `${parseInt(tTime, 10)} ms`;//seconds
+                        document.querySelector('.speed').innerHTML = `${Number.parseFloat((tSize/file_urls.length)/1024*8).toFixed(2)} Mbps`; // Mbps/s
+                  }
+
+                }
+
+                function transferFailed(evt) {
+                  console.log('An error occurred while transferring the file.');
+                }
+
+                function transferCanceled(evt) {
+                  console.log('The transfer has been canceled by the user.');
+                }
+            }
+        }
+    }
+
+
+  });</script>
+</head>
+
+<body>
+
+    <div class='card'>
+        <div>
+            Total Files to test speed are: <b><span class="files">0</span></b>
+        </div>
+        <br />
+        <div>
+            Current File Progress: <span class="progress">0%</span>
+        </div>
+
+        <div>
+            Current File size: <span class="size">0</span>
+        </div>
+
+        <div>
+            Total Time: <span class="time">0</span>
+        </div>
+
+        <div>
+            Speed: <span class="speed">0</span>
+        </div>
+
+        <div>
+            Latency: <span class="latency">0</span>
+        </div>
+    </div>
+    <br />
+
+    <div class="card2">
+        <div>
+            <button id="asd">Go</button>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
